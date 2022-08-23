@@ -99,8 +99,7 @@ acc = filter(:accept => ==(1), ret)
 plot(acc.t, acc.val)
 scatter(ret.t, ret.val, color=ret.accept, alpha=0.5)
 scatter(ret.t[1:100], ret.val[1:100], color=ret.accept, alpha=0.5)
-
-
+histogram(ret[ret.accept.==1, :].val[100:1600], bins=25)
 start = 1000
 num = 8000
 
