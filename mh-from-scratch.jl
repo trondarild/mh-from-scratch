@@ -5,6 +5,7 @@ using Distributions
 using DataFrames
 using Underscores
 using StatsPlots
+using Query
 d = Normal(10, 3)
 mod1 = t -> rand(d, t)
 
@@ -35,9 +36,10 @@ function manual_log_like_normal(x, data)
 end
 
 function acceptance(x, x_new)
-    if x_new > x return true 
+    if (x_new > x )
+        return true 
     else
-        accept = rand(0:1)
+        accept = rand(Float64) # nb rand(0:1) gives wrong distro
         return (accept < (exp(x_new-x)))
     end
 end
@@ -80,7 +82,7 @@ end
 
 
 
-ret = @_ metropolis_hastings(
+ret = metropolis_hastings(
     manual_log_like_normal,
     prior,
     transition_model,
@@ -92,8 +94,12 @@ ret = @_ metropolis_hastings(
 # ret_df = vcat(ret_df, DataFrame(accept=0, val=ret[2]))
 
 
+acc = filter(:accept => ==(1), ret)
 # @df ret_df |> scatter(:val, cat=:accept)
-scatter(ret.t[3000:4000], ret.val[3000:4000], color=ret.accept, alpha=0.5)
+plot(acc.t, acc.val)
+scatter(ret.t, ret.val, color=ret.accept, alpha=0.5)
+scatter(ret.t[1:100], ret.val[1:100], color=ret.accept, alpha=0.5)
+
 
 start = 1000
 num = 8000
@@ -102,3 +108,5 @@ scatter(LinRange(start, num, num-start), ret)
 
 a = DataFrame(x=Int[], y=Float64[])
 @_ [2, 1.] |> push!(a, __)
+
+histogram(rand(Float64, 1000))
