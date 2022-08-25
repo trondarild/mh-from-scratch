@@ -151,13 +151,9 @@ ret_plt = @_ ret_ss.val[1:10000] |> reduce(hcat, __)'
 scatter(ret_plt[:, 1], ret_plt[:, 2])
 @_ ret_ss.val[2:5, :] |> reduce(hcat, __)'[:,1] 
 
-d_gamma = Gamma(1,2)
-data_gamma = rand(d_gamma, 1000)
-histogram(data_gamma)
-w = 
-fit(Gamma{Float32}, data_ss[!, 4]|> Array)
-fit(Gamma{Float32}, data_gamma)
-collect(-4:4)
+
+# fit(Gamma{Float32}, data_ss[!, 4]|> Array)
+# fit(Gamma{Float32}, data_gamma)
 #tst = DataFrame(t = Int[], accept = Int[], val=Vector{Vector{Float64}}())
 #@_ (1,1,[2., 1.]) |> push!(tst, __)
 
