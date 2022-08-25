@@ -121,26 +121,25 @@ data_ss = CSV.read("Catalogue_B.csv", DataFrame)
 plot(data_ss[!, 1], data_ss[!, 4]) # tried columns 2,3, but couldnt fit gamma
 histogram(data_ss[!, 4])
 
-# Transition model: 
-tr_mdl_ss = x -> [rand(Normal(x[1], 0.05)), rand(Normal(x[2], 0.5))]
+# Transition model / sample values to test for acceptance: 
+tr_mdl_ss = x -> [abs(rand(Normal(x[1], 0.05))), abs(rand(Normal(x[2], 0.5)))]
 tr_mdl_ss([1, 2])
 
 function prior_ss(w)
-    if(w[1] <= 0 || w[2] <=0)
+    if(w[1] <= 0. || w[2] <=0.)
         return 0
     else
         return 1
     end
 end
 
-man_log_lik_gamma = (x, data) -> (x[1]-1).*log.(data) .- (1/x[2]).*data .- x[1]*log(x[2]) .- log(rand(Gamma(x[1]))) |> sum
+man_log_lik_gamma = (x, data) -> (x[1]-1).*log.(data) .- (1/x[2]).*data .- x[1]*log(x[2]) .- log(rand(Gamma(x[1], x[2]))) |> sum
 # read data
 
 log_lik_gamma = (x, data) -> loglikelihood(Gamma(x[1], x[2]), data)
 
-
 ret_ss = metropolis_hastings(
-    log_lik_gamma,
+    man_log_lik_gamma,
     prior_ss,
     tr_mdl_ss,
     [4, 10],
@@ -163,3 +162,4 @@ collect(-4:4)
 #@_ (1,1,[2., 1.]) |> push!(tst, __)
 
 loglikelihood(Gamma(1, 2), data_ss[!, 4] |> Array)
+rand(Gamma(-1,0.6))
