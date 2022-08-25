@@ -117,6 +117,10 @@ histogram(rand(Float64, 1000))
 # sunspot example
 #
 
+data_ss = CSV.read("Catalogue_B.csv", DataFrame) 
+plot(data_ss[!, 1], data_ss[!, 4]) # tried columns 2,3, but couldnt fit gamma
+histogram(data_ss[!, 4])
+
 # Transition model: 
 tr_mdl_ss = x -> [rand(Normal(x[1], 0.05)), rand(Normal(x[2], 0.5))]
 tr_mdl_ss([1, 2])
@@ -132,18 +136,30 @@ end
 man_log_lik_gamma = (x, data) -> (x[1]-1).*log.(data) .- (1/x[2]).*data .- x[1]*log(x[2]) .- log(rand(Gamma(x[1]))) |> sum
 # read data
 
-data_ss = CSV.read("Catalogue_B.csv", DataFrame) 
-plot(data_ss[!, 1], data_ss[!, 2])
+log_lik_gamma = (x, data) -> loglikelihood(Gamma(x[1], x[2]), data)
+
 
 ret_ss = metropolis_hastings(
-    man_log_lik_gamma,
+    log_lik_gamma,
     prior_ss,
     tr_mdl_ss,
     [4, 10],
     50000,
-    data_ss[!,3],
+    data_ss[!,4] |> Array, # otherwise get incompatible structure
     acceptance)
 
-histogram(data_ss[!, 2])
+ret_plt = @_ ret_ss.val[1:10000] |> reduce(hcat, __)'
+scatter(ret_plt[:, 1], ret_plt[:, 2])
+@_ ret_ss.val[2:5, :] |> reduce(hcat, __)'[:,1] 
+
+d_gamma = Gamma(1,2)
+data_gamma = rand(d_gamma, 1000)
+histogram(data_gamma)
+w = 
+fit(Gamma{Float32}, data_ss[!, 4]|> Array)
+fit(Gamma{Float32}, data_gamma)
+collect(-4:4)
 #tst = DataFrame(t = Int[], accept = Int[], val=Vector{Vector{Float64}}())
 #@_ (1,1,[2., 1.]) |> push!(tst, __)
+
+loglikelihood(Gamma(1, 2), data_ss[!, 4] |> Array)
