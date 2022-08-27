@@ -1192,3 +1192,12 @@ class ArrayListExt<T> extends ArrayList {
     for(Object o: a) this.add(o);
   }
 }
+
+float[] take(float[] a, int[] ix){
+  assert(ix.length <= a.length);
+  float[] retval = zeros(ix.length);
+  for (int i = 0; i < ix.length; ++i) {
+    retval[i] = a[ix[i]];
+  }
+  return retval;
+}

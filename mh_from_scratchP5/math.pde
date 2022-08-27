@@ -49,6 +49,14 @@ float[] randomArray(int sz, float max) {
   return retval;
 }
 
+int[] randomIntArray(int sz, float max){
+  int[] retval = new int[sz];
+  for (int i = 0; i < sz; ++i) {
+      retval [i] = (int) random(0, max);
+  }  
+  return retval;  
+}
+
 float[][] randomMatrix(int r, int c, float max){
   float[][] retval = zeros(r, c);
   for (int j = 0; j < r; ++j) {
@@ -207,6 +215,14 @@ float[] subtract(float[] a, float b){
   float[] r = zeros(a.length);
   for(int i=0; i<a.length; i++){
     r[i] = a[i] - b;
+  }
+  return r;
+}
+
+float[] subtract(float a, float[] b){
+  float[] r = zeros(b.length);
+  for(int i=0; i<b.length; i++){
+    r[i] = a - b[i];
   }
   return r;
 }
@@ -896,5 +912,13 @@ float[] pow(float[] a, float e){
   for (int i = 0; i < a.length; ++i) {
     retval[i] = pow(a[i], e);
   } 
+  return retval;
+}
+
+float[] log(float[] a){
+  float[] retval = zeros(a.length);
+  for (int i = 0; i < a.length; ++i) {
+    retval[i] = log(a[i]);
+  }
   return retval;
 }
