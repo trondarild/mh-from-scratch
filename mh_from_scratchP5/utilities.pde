@@ -428,6 +428,10 @@ class Buffer{
   float head(){
     return data.get(0);
   }
+
+  float tail(){
+    return data.get(data.size() - 1);
+  }
   
   float get(int ix){
     return data.get(ix);

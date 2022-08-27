@@ -922,3 +922,19 @@ float[] log(float[] a){
   }
   return retval;
 }
+
+float[] sq(float[] a){
+  float[] retval = zeros(a.length);
+  for (int i = 0; i < a.length; ++i) {
+    retval[i] = sq(a[i]);
+  }
+  return retval;
+}
+
+float[] abs(float[] a){
+  float[] retval = zeros(a.length);
+  for (int i = 0; i < a.length; ++i) {
+    retval[i] = abs(a[i]);
+  }
+  return retval;
+}

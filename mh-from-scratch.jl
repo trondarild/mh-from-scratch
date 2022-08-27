@@ -7,6 +7,7 @@ using Underscores
 using StatsPlots
 using Query
 using CSV
+
 d = Normal(10, 3)
 mod1 = t -> rand(d, t)
 
@@ -31,7 +32,7 @@ end
    
 #Computes the likelihood of the data given a sigma (new or current) according to equation (2)
 function manual_log_like_normal(x, data)
-    #x[0]=mu, x[1]=sigma (new or current)
+    #x[1]=mu, x[2]=sigma (new or current)
     #data = the observation
     return -log.(x[2] * sqrt(2*pi)) .- ((data .- x[1]).^2) / (2*x[2].^2)[1] |> sum
 end

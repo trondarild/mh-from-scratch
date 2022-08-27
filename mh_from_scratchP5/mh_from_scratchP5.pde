@@ -29,17 +29,19 @@ float prior_a(float[] x){
 
 boolean acceptance_a(float x, float x_new){
   if(x_new > x) return true;
-  float accept = random(0, 1);
+  float accept = random(1);
   return (accept < exp(x_new-x));
 }
 
 float log_lik_normal_a(float[] x, float[] data){
   float a = -log(x[1] * sqrt(2*PI));
-  //float a2 = x[1] * sqrt(2*PI);
-  float[] b = divide(pow(subtract(data, x[0]), 2), 2*sq(x[1]));
+  //float a = x[1] * sqrt(2*PI);
+  float[] b = divide(sq(subtract(data, x[0])), 2*sq(x[1]));
   float[] c = subtract(a, b);
   //float d2 = sumArray(multiply(-1, log(c)));
-  float d = sumArray(c);
+  // printArray("c", c);
+  // printArray("log abs c", log(abs(c)));
+  float d = sumArray(multiply(-1, log(abs(c))));
   return d;
 }
 
@@ -47,10 +49,10 @@ int num = 100;
 float std = 75;
 float[] xs = normal(0, std, num);
 float[] ys = normal(0, std, num);
-float[] population = normal(10, 3, 30000);
+float[] population = normal(0, 1, 30000);
 int[] ixes = randomIntArray(1000, 30000);
-
 float[] observation = take(population, ixes);
+float mu_obs = mean(observation);
 
 interface MHInterface{
   float log_likelihood(float[] x, float[] data);
@@ -77,7 +79,7 @@ class NormalMH implements MHInterface {
 }
 
 NormalMH comp = new NormalMH();
-float[] x = {9.6, 0.1};
+float[] x = {mu_obs, 0.1};
 
 float[] metropolis_hastings_single(MHInterface c, 
   float[] param_init, 
@@ -99,10 +101,13 @@ float[] metropolis_hastings_single(MHInterface c,
 
 void setup(){
   size(400, 400);
-  frameRate(10);
-  
+  frameRate(30);
+  float[] tstval = {5, 0.1};
+  //float tst = log_lik_normal_a(tstval, observation);
+  //println("lln: " + tst);
+  //float[] tst = transition_model_a(tstval);
+  //println("lln: " + tst[0] + "; " + tst[1]);
 
-  
 }
 
 void draw(){
@@ -116,15 +121,22 @@ void draw(){
   if(mh[0]==0) reject_buf.append(mh[1]);
   else accept_buf.append(mh[1]);
 
+  
   pushMatrix();
-  float[][] data = {accept_buf.array(), reject_buf.array()};
+  float[][] data = { reject_buf.array(), accept_buf.array()};
+  translate(10,100);
   scale(1.5);
-  drawTimeSeries(data, -5., 5., 0.5, 3.0, null);
+  drawTimeSeries(data, 0., 15., 0.5, 3.0, null);
   
   popMatrix();
   //println("accept: " + mh[0] + "; val: " + mh[1]);
-  x = mh;
+  if(mh[0]==1) x = mh; // only update if accept
   
+  pushMatrix();
+  translate(30, 50);
+  textSize(50);
+  text("" + mean(accept_buf.array()), 0, 0); 
+  popMatrix();
   // pushMatrix();
   // translate(width/2, height/2);
   // for (int i = 0; i < num; ++i) {
