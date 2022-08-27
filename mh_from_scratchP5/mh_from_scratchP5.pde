@@ -1,5 +1,7 @@
 //
 //
+Buffer accept_buf = new Buffer(200);
+Buffer reject_buf = new Buffer(200);
 
 float normal(float mean, float std){
   return randomGaussian()*std + mean;
@@ -34,14 +36,10 @@ boolean acceptance_a(float x, float x_new){
 float log_lik_normal_a(float[] x, float[] data){
   float a = -log(x[1] * sqrt(2*PI));
   //float a2 = x[1] * sqrt(2*PI);
-  println("a: " + a);
   float[] b = divide(pow(subtract(data, x[0]), 2), 2*sq(x[1]));
-  printArray("b", b);
   float[] c = subtract(a, b);
-  printArray("c", c);
   //float d2 = sumArray(multiply(-1, log(c)));
   float d = sumArray(c);
-  println("d: " + d);
   return d;
 }
 
@@ -78,6 +76,9 @@ class NormalMH implements MHInterface {
   }
 }
 
+NormalMH comp = new NormalMH();
+float[] x = {9.6, 0.1};
+
 float[] metropolis_hastings_single(MHInterface c, 
   float[] param_init, 
   float[] data) {
@@ -88,18 +89,19 @@ float[] metropolis_hastings_single(MHInterface c,
     float x_lik = c.log_likelihood(x, data);
     float x_new_lik = c.log_likelihood(x_new, data);
     if(c.acceptance(x_lik + log(c.prior(x)),
-      x_new_lik + log(prior(c.x_new))))
+      x_new_lik + log(c.prior(x_new))))
       ret[0] = 1; // accepted
     else 
       ret[0] = 0; // not accept
-    ret[1] = x_new;
+    ret[1] = x_new[1];
     return ret;
 }
 
 void setup(){
   size(400, 400);
-  frameRate(1);
-  float[] x = {10,2};
+  frameRate(10);
+  
+
   
 }
 
@@ -107,12 +109,28 @@ void draw(){
   
   background(51);
   fill(200);
+  
+  float[] mh = metropolis_hastings_single(
+    comp, x, observation
+  );
+  if(mh[0]==0) reject_buf.append(mh[1]);
+  else accept_buf.append(mh[1]);
+
   pushMatrix();
-  translate(width/2, height/2);
-  for (int i = 0; i < num; ++i) {
-    circle(xs[i], ys[i], 10);  
-  }
+  float[][] data = {accept_buf.array(), reject_buf.array()};
+  scale(1.5);
+  drawTimeSeries(data, -5., 5., 0.5, 3.0, null);
+  
   popMatrix();
+  //println("accept: " + mh[0] + "; val: " + mh[1]);
+  x = mh;
+  
+  // pushMatrix();
+  // translate(width/2, height/2);
+  // for (int i = 0; i < num; ++i) {
+  //   circle(xs[i], ys[i], 10);  
+  // }
+  // popMatrix();
   
   
 }
