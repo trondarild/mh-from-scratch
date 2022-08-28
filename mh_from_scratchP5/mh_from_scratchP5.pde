@@ -45,15 +45,6 @@ float log_lik_normal_a(float[] x, float[] data){
   return d;
 }
 
-int num = 100;
-float std = 75;
-float[] xs = normal(0, std, num);
-float[] ys = normal(0, std, num);
-float[] population = normal(0, 1, 30000);
-int[] ixes = randomIntArray(1000, 30000);
-float[] observation = take(population, ixes);
-float mu_obs = mean(observation);
-
 interface MHInterface{
   float log_likelihood(float[] x, float[] data);
   float[] transition_model(float[] x);
@@ -78,8 +69,26 @@ class NormalMH implements MHInterface {
   }
 }
 
+float[] histogram(float val, float[] hist, float min, float max){
+  int ix = int(float(hist.length) * (val-min)/(max-min));
+  if(ix >= 0 && ix < hist.length)
+    hist[ix]+=1;
+  return hist;
+
+}
+
+//int num = 100;
+//float[] xs = normal(0, std, num);
+//float[] ys = normal(0, std, num);
+float std = 15;
+float[] population = normal(0, std, 30000);
+int[] ixes = randomIntArray(1000, 30000);
+float[] observation = take(population, ixes);
+float mu_obs = mean(observation);
+
 NormalMH comp = new NormalMH();
 float[] x = {mu_obs, 0.1};
+float[] hist = zeros(11);
 
 float[] metropolis_hastings_single(MHInterface c, 
   float[] param_init, 
@@ -134,15 +143,24 @@ void draw(){
   
   pushMatrix();
   translate(30, 50);
+  pushStyle();
   textSize(50);
   text("" + mean(accept_buf.array()), 0, 0); 
+  text("" + accept_buf.tail(), 0, 55); 
+  popStyle();
   popMatrix();
-  // pushMatrix();
-  // translate(width/2, height/2);
-  // for (int i = 0; i < num; ++i) {
-  //   circle(xs[i], ys[i], 10);  
-  // }
-  // popMatrix();
+  float w = 4;
+  hist = histogram(accept_buf.tail(), hist, std-w, std+w);
+  //printArray("hist", hist);
+  
+  pushMatrix();
+  textSize(10);
+  translate(2*width/4, 3*height/4);
+  scale(1.2);
+
+  barchart_array(normalize(hist), "hist");
+
+  popMatrix();
   
   
 }
